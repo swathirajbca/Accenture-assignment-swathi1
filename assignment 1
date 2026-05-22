@@ -1,0 +1,32 @@
+use libraryDB
+
+db.createCollection("books")
+
+db.createCollection("members")
+
+db.books.insertMany([
+   { Title: "MongoDB Basics", Author: "Tom", Copies: 5 },
+   { Title: "Learning NoSQL", Author: "John", Copies: 3 },
+   { Title: "Database Systems", Author: "Alice", Copies: 7 },
+   { Title: "Mastering MongoDB", Author: "Robert", Copies: 4 },
+   { Title: "Web Data Management", Author: "Emma", Copies: 6 }
+])
+
+db.members.insertMany([
+   { Name: "swathi", MembershipType: "Gold" },
+   { Name: "shruthi", MembershipType: "Silver" },
+   { Name: "rajkumar", MembershipType: "Platinum" },
+   { Name: "uma", MembershipType: "Gold" },
+   { Name: "saru", MembershipType: "Silver" },
+   { Name: "priya", MembershipType: "Gold" }
+])
+
+db.books.find()
+
+db.members.find()
+
+db.members.drop()
+
+db.dropDatabase()
+
+use day1
