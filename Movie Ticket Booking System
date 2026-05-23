@@ -1,0 +1,332 @@
+db.createCollection("customers")
+{ ok: 1 }
+db.customers.insertMany([
+{
+ _id: 1,
+ name: "Arun",
+ profile: { age: 25, city: "Chennai" }
+},
+{
+ _id: 2,
+ name: "Priya",
+ profile: { age: 22, city: "Bangalore" }
+},
+{
+ _id: 3,
+ name: "Rahul",
+ profile: { age: 30, city: "Hyderabad" }
+},
+{
+ _id: 4,
+ name: "Neha",
+ profile: { age: 28, city: "Mumbai" }
+},
+{
+ _id: 5,
+ name: "Kiran",
+ profile: { age: 35, city: "Pune" }
+}
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3,
+    '3': 4,
+    '4': 5
+  }
+}
+db.createCollection("movies")
+{ ok: 1 }
+db.movies.insertMany([
+{ _id: "M1", title: "Inception", genre: "Sci-Fi", price: 300 },
+{ _id: "M2", title: "Avatar", genre: "Fantasy", price: 350 },
+{ _id: "M3", title: "Interstellar", genre: "Sci-Fi", price: 400 }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 'M1',
+    '1': 'M2',
+    '2': 'M3'
+  }
+}
+db.createCollection("bookings")
+{ ok: 1 }
+db.bookings.insertMany([
+{ _id: 301, customer_id: 1, movie_id: "M1", show_date: "2026-02-01" },
+{ _id: 302, customer_id: 1, movie_id: "M2", show_date: "2026-02-03" },
+{ _id: 303, customer_id: 2, movie_id: "M1", show_date: "2026-02-05" },
+{ _id: 304, customer_id: 3, movie_id: "M3", show_date: "2026-02-06" },
+{ _id: 305, customer_id: 3, movie_id: "M1", show_date: "2026-02-08" },
+{ _id: 306, customer_id: 4, movie_id: "M2", show_date: "2026-02-10" },
+{ _id: 307, customer_id: 5, movie_id: "M3", show_date: "2026-02-12" },
+{ _id: 308, customer_id: 5, movie_id: "M2", show_date: "2026-02-14" }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 301,
+    '1': 302,
+    '2': 303,
+    '3': 304,
+    '4': 305,
+    '5': 306,
+    '6': 307,
+    '7': 308
+  }
+}
+Query 1 — Total Bookings Per Movie
+db.bookings.aggregate([
+{
+   $group: {
+      _id: "$movie_id",
+      total_bookings: { $sum: 1 }
+   }
+}
+])
+{
+  _id: 'M1',
+  total_bookings: 3
+}
+{
+  _id: 'M2',
+  total_bookings: 3
+}
+{
+  _id: 'M3',
+  total_bookings: 2
+}
+Query 2 — Movie-wise Revenue Report
+db.bookings.aggregate([
+{
+   $lookup: {
+      from: "movies",
+      localField: "movie_id",
+      foreignField: "_id",
+      as: "movie_details"
+   }
+},
+{
+   $unwind: "$movie_details"
+},
+{
+   $group: {
+      _id: "$movie_details.title",
+      total_tickets_sold: { $sum: 1 },
+      total_revenue: { $sum: "$movie_details.price" },
+      average_ticket_price: { $avg: "$movie_details.price" },
+      minimum_ticket_price: { $min: "$movie_details.price" },
+      maximum_ticket_price: { $max: "$movie_details.price" }
+   }
+}
+])
+{
+  _id: 'Inception',
+  total_tickets_sold: 3,
+  total_revenue: 900,
+  average_ticket_price: 300,
+  minimum_ticket_price: 300,
+  maximum_ticket_price: 300
+}
+{
+  _id: 'Avatar',
+  total_tickets_sold: 3,
+  total_revenue: 1050,
+  average_ticket_price: 350,
+  minimum_ticket_price: 350,
+  maximum_ticket_price: 350
+}
+{
+  _id: 'Interstellar',
+  total_tickets_sold: 2,
+  total_revenue: 800,
+  average_ticket_price: 400,
+  minimum_ticket_price: 400,
+  maximum_ticket_price: 400
+}
+Query 3 — Customer-wise Spending Report
+db.bookings.aggregate([
+{
+   $lookup: {
+      from: "customers",
+      localField: "customer_id",
+      foreignField: "_id",
+      as: "customer"
+   }
+},
+{
+   $lookup: {
+      from: "movies",
+      localField: "movie_id",
+      foreignField: "_id",
+      as: "movie"
+   }
+},
+{
+   $unwind: "$customer"
+},
+{
+   $unwind: "$movie"
+},
+{
+   $group: {
+      _id: "$customer.name",
+      number_of_movies_booked: { $sum: 1 },
+      total_amount_spent: { $sum: "$movie.price" },
+      average_spending: { $avg: "$movie.price" },
+      movies_watched: { $push: "$movie.title" }
+   }
+}
+])
+{
+  _id: 'Arun',
+  number_of_movies_booked: 2,
+  total_amount_spent: 650,
+  average_spending: 325,
+  movies_watched: [
+    'Inception',
+    'Avatar'
+  ]
+}
+{
+  _id: 'Priya',
+  number_of_movies_booked: 1,
+  total_amount_spent: 300,
+  average_spending: 300,
+  movies_watched: [
+    'Inception'
+  ]
+}
+{
+  _id: 'Rahul',
+  number_of_movies_booked: 2,
+  total_amount_spent: 700,
+  average_spending: 350,
+  movies_watched: [
+    'Interstellar',
+    'Inception'
+  ]
+}
+{
+  _id: 'Neha',
+  number_of_movies_booked: 1,
+  total_amount_spent: 350,
+  average_spending: 350,
+  movies_watched: [
+    'Avatar'
+  ]
+}
+Query 4 — Customers with Multiple Bookings
+db.bookings.aggregate([
+{
+   $group: {
+      _id: "$customer_id",
+      total_bookings: { $sum: 1 }
+   }
+},
+{
+   $match: {
+      total_bookings: { $gt: 1 }
+   }
+}
+])
+{
+  _id: 1,
+  total_bookings: 2
+}
+{
+  _id: 3,
+  total_bookings: 2
+}
+{
+  _id: 5,
+  total_bookings: 2
+}
+Query 5 — Genre-wise Booking Count
+db.bookings.aggregate([
+{
+   $lookup: {
+      from: "movies",
+      localField: "movie_id",
+      foreignField: "_id",
+      as: "movie"
+   }
+},
+{
+   $unwind: "$movie"
+},
+{
+   $group: {
+      _id: "$movie.genre",
+      total_bookings: { $sum: 1 }
+   }
+}
+])
+{
+  _id: 'Fantasy',
+  total_bookings: 3
+}
+{
+  _id: 'Sci-Fi',
+  total_bookings: 5
+}
+Query 6 — Movie Popularity with Customer List
+db.bookings.aggregate([
+{
+   $lookup: {
+      from: "movies",
+      localField: "movie_id",
+      foreignField: "_id",
+      as: "movie"
+   }
+},
+{
+   $lookup: {
+      from: "customers",
+      localField: "customer_id",
+      foreignField: "_id",
+      as: "customer"
+   }
+},
+{
+   $unwind: "$movie"
+},
+{
+   $unwind: "$customer"
+},
+{
+   $group: {
+      _id: "$movie.title",
+      total_bookings: { $sum: 1 },
+      customer_list: { $push: "$customer.name" }
+   }
+}
+])
+{
+  _id: 'Inception',
+  total_bookings: 3,
+  customer_list: [
+    'Arun',
+    'Priya',
+    'Rahul'
+  ]
+}
+{
+  _id: 'Avatar',
+  total_bookings: 3,
+  customer_list: [
+    'Arun',
+    'Neha',
+    'Kiran'
+  ]
+}
+{
+  _id: 'Interstellar',
+  total_bookings: 2,
+  customer_list: [
+    'Rahul',
+    'Kiran'
+  ]
+}
