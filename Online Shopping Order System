@@ -1,0 +1,114 @@
+Online Shopping Order System
+db.createCollection("orders")
+{ ok: 1 }
+db.orders.insertMany([
+{
+ customer_id: "C101",
+ name: "Asha",
+ items: [
+   { product: "Mobile", price: 15000 },
+   { product: "Earphones", price: 2000 }
+ ]
+},
+{
+ customer_id: "C102",
+ name: "Kiran",
+ items: [
+   { product: "Mobile", price: 15000 },
+   { product: "Laptop", price: 50000 }
+ ]
+},
+{
+ customer_id: "C103",
+ name: "Neha",
+ items: [
+   { product: "Earphones", price: 2000 },
+   { product: "Laptop", price: 50000 }
+ ]
+}
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a11ed34964a8b1899502e87'),
+    '1': ObjectId('6a11ed34964a8b1899502e88'),
+    '2': ObjectId('6a11ed34964a8b1899502e89')
+  }
+}
+SCENARIO 1 — Mobile Product Revenue Report
+db.orders.aggregate([
+{
+   $unwind: "$items"
+},
+{
+   $match: {
+      "items.product": "Mobile",
+      "items.price": { $gte: 15000 }
+   }
+},
+{
+   $group: {
+      _id: "$items.product",
+      total_customers: { $sum: 1 },
+      total_revenue: { $sum: "$items.price" },
+      average_price: { $avg: "$items.price" },
+      minimum_price: { $min: "$items.price" },
+      maximum_price: { $max: "$items.price" },
+      customer_names: { $push: "$name" },
+      first_customer: { $first: "$name" }
+   }
+},
+{
+   $out: "mobile_report"
+}
+])
+SCENARIO 2 — High Value Products Report
+db.orders.aggregate([
+{
+   $unwind: "$items"
+},
+{
+   $match: {
+      "items.price": { $gte: 15000 },
+      "items.product": { $in: ["Mobile", "Laptop"] }
+   }
+},
+{
+   $group: {
+      _id: "$items.product",
+      number_of_orders: { $sum: 1 },
+      total_revenue: { $sum: "$items.price" },
+      average_price: { $avg: "$items.price" },
+      minimum_price: { $min: "$items.price" },
+      maximum_price: { $max: "$items.price" },
+      customer_list: { $push: "$name" }
+   }
+},
+{
+   $out: "high_value_products_report"
+}
+])
+SCENARIO 3 — Customer-wise Spending Report
+db.orders.aggregate([
+{
+   $project: {
+      name: 1,
+      items: 1,
+      total_products: { $size: "$items" },
+      total_spent: { $sum: "$items.price" },
+      average_price: { $avg: "$items.price" },
+      minimum_price: { $min: "$items.price" },
+      maximum_price: { $max: "$items.price" },
+      product_list: "$items.product"
+   }
+},
+{
+   $match: {
+      total_products: { $gt: 1 },
+      total_spent: { $gte: 30000 }
+   }
+},
+{
+   $out: "customer_spending_report"
+}
+])
