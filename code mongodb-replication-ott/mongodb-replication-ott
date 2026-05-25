@@ -1,0 +1,160 @@
+mongodb-replication-ott/
+│
+├── data/
+│   ├── db1/
+│   ├── db2/
+│   └── db3/
+│
+├── scripts/
+│   ├── setupReplica.js
+│   ├── insertUsers.js
+│   ├── insertStreamingHistory.js
+│   ├── insertRecommendations.js
+│   ├── insertActivityLogs.js
+│   ├── checkData.js
+│   ├── updateData.js
+│   ├── deleteData.js
+│   └── failoverDemo.js
+
+rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "localhost:27017" },
+    { _id: 1, host: "localhost:27018" },
+    { _id: 2, host: "localhost:27019" }
+  ]
+})
+
+
+db.users.insertMany([
+{
+  userId: "U101",
+  name: "Shruthi",
+  email: "shruthi@gmail.com",
+  subscription: "Premium",
+  country: "India",
+  createdAt: new Date()
+},
+{
+  userId: "U102",
+  name: "Rahul",
+  email: "rahul@gmail.com",
+  subscription: "Basic",
+  country: "India",
+  createdAt: new Date()
+},
+{
+  userId: "U103",
+  name: "Anjali",
+  email: "anjali@gmail.com",
+  subscription: "Premium",
+  country: "USA",
+  createdAt: new Date()
+}
+])
+
+
+db.streaming_history.insertMany([
+{
+  historyId: "H101",
+  userId: "U101",
+  contentTitle: "Stranger Things",
+  genre: "Sci-Fi",
+  watchDuration: 120,
+  watchedAt: new Date()
+},
+{
+  historyId: "H102",
+  userId: "U102",
+  contentTitle: "Money Heist",
+  genre: "Thriller",
+  watchDuration: 90,
+  watchedAt: new Date()
+}
+])
+
+
+db.recommendations.insertMany([
+{
+  recommendationId: "R101",
+  userId: "U101",
+  recommendedTitle: "Dark",
+  genre: "Sci-Fi",
+  score: 9
+},
+{
+  recommendationId: "R102",
+  userId: "U102",
+  recommendedTitle: "Breaking Bad",
+  genre: "Crime",
+  score: 8
+}
+])
+
+
+db.activity_logs.insertMany([
+{
+  logId: "L101",
+  userId: "U101",
+  device: "Mobile",
+  activity: "Login",
+  timestamp: new Date()
+},
+{
+  logId: "L102",
+  userId: "U102",
+  device: "Laptop",
+  activity: "Watch",
+  timestamp: new Date()
+}
+])
+
+
+print("Users")
+printjson(db.users.find().toArray())
+
+print("Streaming History")
+printjson(db.streaming_history.find().toArray())
+
+print("Recommendations")
+printjson(db.recommendations.find().toArray())
+
+print("Activity Logs")
+printjson(db.activity_logs.find().toArray())
+
+db.users.updateOne(
+  { userId: "U102" },
+  { $set: { subscription: "Premium" } }
+)
+
+db.streaming_history.updateOne(
+  { historyId: "H102" },
+  { $set: { watchDuration: 150 } }
+)
+
+db.recommendations.updateOne(
+  { recommendationId: "R102" },
+  { $set: { score: 10 } }
+)
+
+db.users.deleteOne({ userId: "U103" })
+
+db.activity_logs.deleteMany({
+  activity: "Login"
+})
+
+db.streaming_history.deleteOne({
+  historyId: "H101"
+})
+
+
+show dbs
+use databaseName
+show collections
+db.collection.find()
+db.collection.insertOne()
+db.collection.insertMany()
+db.collection.updateOne()
+db.collection.deleteOne()
+rs.status()
+
