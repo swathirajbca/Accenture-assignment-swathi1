@@ -109,19 +109,6 @@ db.activity_logs.insertMany([
 }
 ])
 
-
-print("Users")
-printjson(db.users.find().toArray())
-
-print("Streaming History")
-printjson(db.streaming_history.find().toArray())
-
-print("Recommendations")
-printjson(db.recommendations.find().toArray())
-
-print("Activity Logs")
-printjson(db.activity_logs.find().toArray())
-
 db.users.updateOne(
   { userId: "U102" },
   { $set: { subscription: "Premium" } }
