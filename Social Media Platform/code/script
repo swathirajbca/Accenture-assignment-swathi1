@@ -1,0 +1,174 @@
+rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "localhost:27017" },
+    { _id: 1, host: "localhost:27018" },
+    { _id: 2, host: "localhost:27019" }
+  ]
+});
+
+print("Replica Set Initialized");
+
+db = db.getSiblingDB("socialmedia");
+db.users.deleteMany({});
+
+const result = db.users.insertMany([
+  { userId: "U001", username: "arjun_codes", email: "arjun@example.com",
+    bio: "Full-stack developer | Coffee lover", followersCount: 1520,
+    followingCount: 312, createdAt: new Date("2023-01-15") },
+  { userId: "U002", username: "priya.travels", email: "priya@example.com",
+    bio: "Exploring the world one city at a time", followersCount: 8900,
+    followingCount: 540, createdAt: new Date("2022-11-03") },
+  { userId: "U003", username: "rahul_fitness", email: "rahul@example.com",
+    bio: "Fitness coach | Helping you get stronger", followersCount: 24300,
+    followingCount: 198, createdAt: new Date("2021-07-21") },
+  { userId: "U004", username: "sneha_art", email: "sneha@example.com",
+    bio: "Digital artist & illustrator", followersCount: 5600,
+    followingCount: 410, createdAt: new Date("2023-05-30") },
+  { userId: "U005", username: "dev_null", email: "dev@example.com",
+    bio: "Just here to lurk", followersCount: 12,
+    followingCount: 80, createdAt: new Date("2020-02-10") }
+]);
+
+print("Inserted " + result.insertedIds.length + " users.");
+print("Current user count: " + db.users.countDocuments());
+
+db = db.getSiblingDB("socialmedia");
+db.users.deleteMany({});
+
+const result = db.users.insertMany([
+  { userId: "U001", username: "arjun_codes", email: "arjun@example.com",
+    bio: "Full-stack developer | Coffee lover", followersCount: 1520,
+    followingCount: 312, createdAt: new Date("2023-01-15") },
+  { userId: "U002", username: "priya.travels", email: "priya@example.com",
+    bio: "Exploring the world one city at a time", followersCount: 8900,
+    followingCount: 540, createdAt: new Date("2022-11-03") },
+  { userId: "U003", username: "rahul_fitness", email: "rahul@example.com",
+    bio: "Fitness coach | Helping you get stronger", followersCount: 24300,
+    followingCount: 198, createdAt: new Date("2021-07-21") },
+  { userId: "U004", username: "sneha_art", email: "sneha@example.com",
+    bio: "Digital artist & illustrator", followersCount: 5600,
+    followingCount: 410, createdAt: new Date("2023-05-30") },
+  { userId: "U005", username: "dev_null", email: "dev@example.com",
+    bio: "Just here to lurk", followersCount: 12,
+    followingCount: 80, createdAt: new Date("2020-02-10") }
+]);
+
+print("Inserted " + result.insertedIds.length + " users.");
+print("Current user count: " + db.users.countDocuments());
+
+
+db = db.getSiblingDB("socialmedia");
+db.comments.deleteMany({});
+
+const result = db.comments.insertMany([
+  { commentId: "C001", postId: "P002", userId: "U001",
+    commentText: "This view is unreal!",
+    commentedAt: new Date("2024-03-02T19:00:00Z") },
+  { commentId: "C002", postId: "P003", userId: "U005",
+    commentText: "Saved. Trying these tomorrow.",
+    commentedAt: new Date("2024-03-03T07:00:00Z") },
+  { commentId: "C003", postId: "P003", userId: "U002",
+    commentText: "Great tips, thanks for sharing!",
+    commentedAt: new Date("2024-03-03T08:20:00Z") },
+  { commentId: "C004", postId: "P001", userId: "U004",
+    commentText: "Congrats on the launch!",
+    commentedAt: new Date("2024-03-01T10:05:00Z") },
+  { commentId: "C005", postId: "P005", userId: "U003",
+    commentText: "Haha so relatable.",
+    commentedAt: new Date("2024-03-05T03:00:00Z") }
+]);
+
+print("Inserted " + result.insertedIds.length + " comments.");
+print("Current comment count: " + db.comments.countDocuments());
+
+db = db.getSiblingDB("socialmedia");
+db.followers.deleteMany({});
+
+const result = db.followers.insertMany([
+  { followId: "F001", followerId: "U005", followingId: "U003",
+    followedAt: new Date("2024-01-10") },
+  { followId: "F002", followerId: "U001", followingId: "U002",
+    followedAt: new Date("2024-01-12") },
+  { followId: "F003", followerId: "U004", followingId: "U002",
+    followedAt: new Date("2024-02-01") },
+  { followId: "F004", followerId: "U002", followingId: "U001",
+    followedAt: new Date("2024-02-15") },
+  { followId: "F005", followerId: "U003", followingId: "U001",
+    followedAt: new Date("2024-03-01") }
+]);
+
+print("Inserted " + result.insertedIds.length + " follow records.");
+print("Current followers count: " + db.followers.countDocuments());
+
+db = db.getSiblingDB("socialmedia");
+db.activity_logs.deleteMany({});
+
+const result = db.activity_logs.insertMany([
+  { activityId: "A001", userId: "U001", activityType: "Login",
+    device: "Laptop", activityTime: new Date("2024-03-01T09:00:00Z") },
+  { activityId: "A002", userId: "U001", activityType: "Post",
+    device: "Laptop", activityTime: new Date("2024-03-01T09:30:00Z") },
+  { activityId: "A003", userId: "U002", activityType: "Like",
+    device: "Mobile", activityTime: new Date("2024-03-02T19:01:00Z") },
+  { activityId: "A004", userId: "U003", activityType: "Comment",
+    device: "Mobile", activityTime: new Date("2024-03-05T03:00:00Z") },
+  { activityId: "A005", userId: "U005", activityType: "Login",
+    device: "Mobile", activityTime: new Date("2024-03-03T06:55:00Z") }
+]);
+
+print("Inserted " + result.insertedIds.length + " logs.");
+print("Current activity log count: " + db.activity_logs.countDocuments());
+
+
+
+db = db.getSiblingDB("socialmedia");
+
+let r1 = db.users.updateOne(
+  { userId: "U001" },
+  { $set: { bio: "Senior full-stack developer | Open-source contributor" } }
+);
+print("Bio update -> matched: " + r1.matchedCount + ", modified: " + r1.modifiedCount);
+
+let r2 = db.posts.updateOne(
+  { postId: "P001" },
+  { $set: { caption: "Shipped TWO features today! Best sprint yet." } }
+);
+print("Caption update -> matched: " + r2.matchedCount + ", modified: " + r2.modifiedCount);
+
+let r3 = db.posts.updateOne(
+  { postId: "P003" },
+  { $inc: { likesCount: 50 } }
+);
+print("Likes increment -> matched: " + r3.matchedCount + ", modified: " + r3.modifiedCount);
+
+let r4 = db.posts.updateMany(
+  { likesCount: { $lt: 1 } },
+  { $set: { likesCount: 1 } }
+);
+print("Bulk min-likes fix -> modified: " + r4.modifiedCount);
+
+print("\nUpdated user U001:");
+printjson(db.users.findOne({ userId: "U001" }, { _id: 0, username: 1, bio: 1 }));
+print("\nUpdated post P001:");
+printjson(db.posts.findOne({ postId: "P001" }, { _id: 0, postId: 1, caption: 1, likesCount: 1 }));
+print("\nUpdated post P003:");
+printjson(db.posts.findOne({ postId: "P003" }, { _id: 0, postId: 1, likesCount: 1 }));
+
+db = db.getSiblingDB("socialmedia");
+
+let d1 = db.users.deleteMany({ followersCount: { $lt: 20 } });
+print("Deleted inactive users (followers < 20): " + d1.deletedCount);
+
+let d2 = db.comments.deleteOne({ commentId: "C005" });
+print("Deleted unwanted comment C005: " + d2.deletedCount);
+
+let d3 = db.posts.deleteOne({ postId: "P005" });
+print("Deleted post P005: " + d3.deletedCount);
+
+print("\nRemaining counts after deletion:");
+print("  users:    " + db.users.countDocuments());
+print("  posts:    " + db.posts.countDocuments());
+print("  comments: " + db.comments.countDocuments());
+
+
