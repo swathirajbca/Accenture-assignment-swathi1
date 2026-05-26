@@ -1,0 +1,630 @@
+db.Customer.insertMany([
+  { id: 3001, FirstName: "Ben",      LastName: "Miller",   Street: "101,Candy Rd",        City: "Redmond",  State: "WA", Phone: 9845367123, Email: "ben@gmail.com" },
+  { id: 3002, FirstName: "Garrett",  LastName: "Vargas",   Street: "102, Acorn Avenue",    City: "Calgary",  State: "AB", Phone: 9789011111, Email: "garrett@gmail.com" },
+  { id: 3003, FirstName: "Gabe",     LastName: "Mares",    Street: "1061, Buskrit Avenue", City: "Edmonds",  State: "WA", Phone: 9944433222, Email: "gabe@gmail.com" },
+  { id: 3004, FirstName: "Reuben",   LastName: "Dsa",      Street: "1064, Slow Creek Road", City: "Seattle",  State: "WA", Phone: 9988844555, Email: "reuben@gmail.com" },
+  { id: 3005, FirstName: "Gordon",   LastName: "Hee",      Street: "108, LakeSide Court",  City: "Bellevue", State: "WA", Phone: 8855577234, Email: "gordon@gmail.com" },
+  { id: 3006, FirstName: "Karan",    LastName: "Khanna",   Street: "1102, Ravenwood",      City: "Seattle",  State: "WA", Phone: 7788966445, Email: "karan@gmail.com" },
+  { id: 3007, FirstName: "Francois", LastName: "Ajenstat", Street: "1144, Paradise Ct",    City: "Issaquah", State: "WA", Phone: 7889900123, Email: "francois@gmail.com" },
+  { id: 3008, FirstName: "Sariya",   LastName: "Hampa",    Street: "1185, Dallas Drive",   City: "Everett",  State: "WA", Phone: 9667785544, Email: "sariya@gmail.com" },
+  { id: 3009, FirstName: "Krik",     LastName: "Koenigs",  Street: "1220, Bradford Way",   City: "Seattle",  State: "WA", Phone: 9774455443, Email: "krik@gmail.com" },
+  { id: 3010, FirstName: "Kim",      LastName: "Ralls",    Street: "1226, Shoe St",        City: "Bothell",  State: "WA", Phone: 8770033221, Email: "kim@gmail.com" }
+])
+db.Salesman.insertMany([
+  { id: 5001, Name: "James Hoog",  City: "New York", Commission: 0.15 },
+  { id: 5002, Name: "Nail Knite",  City: "Paris",    Commission: 0.13 },
+  { id: 5003, Name: "Lauson Hen",  City: "Germany",  Commission: 0.12 },
+  { id: 5005, Name: "Pit Alex",    City: "London",   Commission: 0.11 },
+  { id: 5006, Name: "Mc Lyon",     City: "Paris",    Commission: 0.14 },
+  { id: 5007, Name: "Paul Adam",   City: "Rome",     Commission: 0.13 }
+])
+
+1. Query to join the two collections of Customer and Salesman
+db.Customer.aggregate([
+  { $lookup: { from: "Purchase", localField: "id",
+              foreignField: "customer_id", as: "purchase" } },
+  { $unwind: "$purchase" },
+  { $lookup: { from: "Salesman", localField: "purchase.salesman_id",
+              foreignField: "id", as: "salesman" } },
+  { $unwind: "$salesman" },
+  { $project: { _id: 0, FirstName: 1,
+              salesman: "$salesman.Name", amount: "$purchase.purchase_amt" } }
+])
+{
+  FirstName: 'Ben',
+  salesman: 'Pit Alex',
+  amount: 520
+}
+{
+  FirstName: 'Garrett',
+  salesman: 'James Hoog',
+  amount: 225
+}
+{
+  FirstName: 'Garrett',
+  salesman: 'James Hoog',
+  amount: 2000
+}
+{
+  FirstName: 'Gabe',
+  salesman: 'Paul Adam',
+  amount: 350
+}
+{
+  FirstName: 'Reuben',
+  salesman: 'Mc Lyon',
+  amount: 2000
+}
+{
+  FirstName: 'Gordon',
+  salesman: 'Nail Knite',
+  amount: 810
+}
+{
+  FirstName: 'Gordon',
+  salesman: 'Nail Knite',
+  amount: 434
+}
+{
+  FirstName: 'Francois',
+  salesman: 'James Hoog',
+  amount: 200
+}
+{
+  FirstName: 'Sariya',
+  salesman: 'Nail Knite',
+  amount: 80
+}
+{
+  FirstName: 'Krik',
+  salesman: 'Lauson Hen',
+  amount: 150
+}
+{
+  FirstName: 'Krik',
+  salesman: 'Lauson Hen',
+  amount: 700
+}
+
+2. select FirstName, LastName, Ciry, State from Customer where
+State=‘WA’ order by City
+db.Customer.find(
+  { State: "WA" },
+  { _id: 0, FirstName: 1, LastName: 1, City: 1, State: 1 }
+).sort({ City: 1 })
+{
+  FirstName: 'Gordon',
+  LastName: 'Hee',
+  City: 'Bellevue',
+  State: 'WA'
+}
+{
+  FirstName: 'Kim',
+  LastName: 'Ralls',
+  City: 'Bothell',
+  State: 'WA'
+}
+{
+  FirstName: 'Gabe',
+  LastName: 'Mares',
+  City: 'Edmonds',
+  State: 'WA'
+}
+{
+  FirstName: 'Sariya',
+  LastName: 'Hampa',
+  City: 'Everett',
+  State: 'WA'
+}
+{
+  FirstName: 'Francois',
+  LastName: 'Ajenstat',
+  City: 'Issaquah',
+  State: 'WA'
+}
+{
+  FirstName: 'Ben',
+  LastName: 'Miller',
+  City: 'Redmond',
+  State: 'WA'
+}
+{
+  FirstName: 'Reuben',
+  LastName: 'Dsa',
+  City: 'Seattle',
+  State: 'WA'
+}
+{
+  FirstName: 'Karan',
+  LastName: 'Khanna',
+  City: 'Seattle',
+  State: 'WA'
+}
+{
+  FirstName: 'Krik',
+  LastName: 'Koenigs',
+  City: 'Seattle',
+  State: 'WA'
+}
+
+3. update the commission of Salesman id=5005 to 0.13 and display the
+output immediately after the updation.
+db.Salesman.findOneAndUpdate(
+  { id: 5005 },
+  { $set: { Commission: 0.13 } },
+  { returnNewDocument: true }
+)
+
+4. Select the documents where the name starts with ‘G’
+db.Customer.find({ FirstName: /^G/ })
+{
+  _id: ObjectId('6a15496f777531d64a4e0ac7'),
+  id: 3002,
+  FirstName: 'Garrett',
+  LastName: 'Vargas',
+  Street: '102, Acorn Avenue',
+  City: 'Calgary',
+  State: 'AB',
+  Phone: 9789011111,
+  Email: 'garrett@gmail.com'
+}
+{
+  _id: ObjectId('6a15496f777531d64a4e0ac8'),
+  id: 3003,
+  FirstName: 'Gabe',
+  LastName: 'Mares',
+  Street: '1061, Buskrit Avenue',
+  City: 'Edmonds',
+  State: 'WA',
+  Phone: 9944433222,
+  Email: 'gabe@gmail.com'
+}
+{
+  _id: ObjectId('6a15496f777531d64a4e0aca'),
+  id: 3005,
+  FirstName: 'Gordon',
+  LastName: 'Hee',
+  Street: '108, LakeSide Court',
+  City: 'Bellevue',
+  State: 'WA',
+  Phone: 8855577234,
+  Email: 'gordon@gmail.com'
+}
+
+5. Create a text search for Name in salesman and search the name =
+‘Pit Alex’ and display the output
+db.Salesman.createIndex({ Name: "text" })
+Name_text
+db.Salesman.find({ $text: { $search: "\"Pit Alex\"" } })
+{
+  _id: ObjectId('6a15498d777531d64a4e0ad3'),
+  id: 5005,
+  Name: 'Pit Alex',
+  City: 'London',
+  Commission: 0.13
+}
+
+6. Select the documents from Customer starting with ‘k’ using regex
+option keyword
+db.Customer.find({
+  FirstName: { $regex: "^k", $options: "i" }
+})
+{
+  _id: ObjectId('6a15496f777531d64a4e0acb'),
+  id: 3006,
+  FirstName: 'Karan',
+  LastName: 'Khanna',
+  Street: '1102, Ravenwood',
+  City: 'Seattle',
+  State: 'WA',
+  Phone: 7788966445,
+  Email: 'karan@gmail.com'
+}
+{
+  _id: ObjectId('6a15496f777531d64a4e0ace'),
+  id: 3009,
+  FirstName: 'Krik',
+  LastName: 'Koenigs',
+  Street: '1220, Bradford Way',
+  City: 'Seattle',
+  State: 'WA',
+  Phone: 9774455443,
+  Email: 'krik@gmail.com'
+}
+{
+  _id: ObjectId('6a15496f777531d64a4e0acf'),
+  id: 3010,
+  FirstName: 'Kim',
+  LastName: 'Ralls',
+  Street: '1226, Shoe St',
+  City: 'Bothell',
+  State: 'WA',
+  Phone: 8770033221,
+  Email: 'kim@gmail.com'
+}
+
+7. Fetching the last nth document from Customer
+db.Customer.find().sort({ _id: -1 }).limit(1)
+{
+  _id: ObjectId('6a15496f777531d64a4e0acf'),
+  id: 3010,
+  FirstName: 'Kim',
+  LastName: 'Ralls',
+  Street: '1226, Shoe St',
+  City: 'Bothell',
+  State: 'WA',
+  Phone: 8770033221,
+  Email: 'kim@gmail.com'
+}
+
+8. pipeline opertor to join the two collections based on
+purchase.salesman_id=salesman.id
+db.Purchase.aggregate([
+  { $lookup: {
+      from: "Salesman",
+      localField: "salesman_id",
+      foreignField: "id",
+      as: "salesman_info"
+  } },
+  { $unwind: "$salesman_info" }
+])
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e68'),
+  order_no: 70001,
+  Book_id: 3,
+  item_quantity: 3,
+  purchase_amt: 810,
+  date: '2022-11-05',
+  customer_id: 3005,
+  salesman_id: 5002,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad1'),
+    id: 5002,
+    Name: 'Nail Knite',
+    City: 'Paris',
+    Commission: 0.13
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e69'),
+  order_no: 70009,
+  Book_id: 4,
+  item_quantity: 4,
+  purchase_amt: 520,
+  date: '2022-11-10',
+  customer_id: 3001,
+  salesman_id: 5005,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad3'),
+    id: 5005,
+    Name: 'Pit Alex',
+    City: 'London',
+    Commission: 0.13
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6a'),
+  order_no: 70002,
+  Book_id: 5,
+  item_quantity: 1,
+  purchase_amt: 225,
+  date: '2022-11-09',
+  customer_id: 3002,
+  salesman_id: 5001,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad0'),
+    id: 5001,
+    Name: 'James Hoog',
+    City: 'New York',
+    Commission: 0.15
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6b'),
+  order_no: 70004,
+  Book_id: 6,
+  item_quantity: 2,
+  purchase_amt: 150,
+  date: '2022-11-08',
+  customer_id: 3009,
+  salesman_id: 5003,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad2'),
+    id: 5003,
+    Name: 'Lauson Hen',
+    City: 'Germany',
+    Commission: 0.12
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6c'),
+  order_no: 70007,
+  Book_id: 1,
+  item_quantity: 2,
+  purchase_amt: 434,
+  date: '2022-11-08',
+  customer_id: 3005,
+  salesman_id: 5002,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad1'),
+    id: 5002,
+    Name: 'Nail Knite',
+    City: 'Paris',
+    Commission: 0.13
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6d'),
+  order_no: 70008,
+  Book_id: 8,
+  item_quantity: 1,
+  purchase_amt: 200,
+  date: '2022-11-01',
+  customer_id: 3007,
+  salesman_id: 5001,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad0'),
+    id: 5001,
+    Name: 'James Hoog',
+    City: 'New York',
+    Commission: 0.15
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6e'),
+  order_no: 70010,
+  Book_id: 7,
+  item_quantity: 2,
+  purchase_amt: 2000,
+  date: '2022-11-03',
+  customer_id: 3004,
+  salesman_id: 5006,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad4'),
+    id: 5006,
+    Name: 'Mc Lyon',
+    City: 'Paris',
+    Commission: 0.14
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6f'),
+  order_no: 70003,
+  Book_id: 10,
+  item_quantity: 2,
+  purchase_amt: 700,
+  date: '2022-11-04',
+  customer_id: 3009,
+  salesman_id: 5003,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad2'),
+    id: 5003,
+    Name: 'Lauson Hen',
+    City: 'Germany',
+    Commission: 0.12
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e70'),
+  order_no: 70012,
+  Book_id: 9,
+  item_quantity: 2,
+  purchase_amt: 80,
+  date: '2022-11-02',
+  customer_id: 3008,
+  salesman_id: 5002,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad1'),
+    id: 5002,
+    Name: 'Nail Knite',
+    City: 'Paris',
+    Commission: 0.13
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e71'),
+  order_no: 70011,
+  Book_id: 2,
+  item_quantity: 2,
+  purchase_amt: 350,
+  date: '2022-11-07',
+  customer_id: 3003,
+  salesman_id: 5007,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad5'),
+    id: 5007,
+    Name: 'Paul Adam',
+    City: 'Rome',
+    Commission: 0.13
+  }
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e72'),
+  order_no: 70013,
+  Book_id: 7,
+  item_quantity: 2,
+  purchase_amt: 2000,
+  date: '2022-11-06',
+  customer_id: 3002,
+  salesman_id: 5001,
+  salesman_info: {
+    _id: ObjectId('6a15498d777531d64a4e0ad0'),
+    id: 5001,
+    Name: 'James Hoog',
+    City: 'New York',
+    Commission: 0.15
+  }
+}
+
+9. Joining the two collections into one document output - select customer.FirstName, customer.LastName, customer.Phone, Customer.Email, Purchase.item_quantity, Purchase.purchase_amt from Customer left join on Purchase where
+Customer.id=Purchase.customer_id order by Customer.FirstName
+
+db.Customer.aggregate([
+  { $lookup: { from: "Purchase", localField: "id",
+              foreignField: "customer_id", as: "p" } },
+  { $unwind: { path: "$p", preserveNullAndEmptyArrays: true } },
+  { $project: {
+      _id: 0, FirstName: 1, LastName: 1, Phone: 1, Email: 1,
+      item_quantity: "$p.item_quantity",
+      purchase_amt: "$p.purchase_amt"
+  } },
+  { $sort: { FirstName: 1 } }
+])
+{
+  FirstName: 'Ben',
+  LastName: 'Miller',
+  Phone: 9845367123,
+  Email: 'ben@gmail.com',
+  item_quantity: 4,
+  purchase_amt: 520
+}
+{
+  FirstName: 'Francois',
+  LastName: 'Ajenstat',
+  Phone: 7889900123,
+  Email: 'francois@gmail.com',
+  item_quantity: 1,
+  purchase_amt: 200
+}
+{
+  FirstName: 'Gabe',
+  LastName: 'Mares',
+  Phone: 9944433222,
+  Email: 'gabe@gmail.com',
+  item_quantity: 2,
+  purchase_amt: 350
+}
+{
+  FirstName: 'Garrett',
+  LastName: 'Vargas',
+  Phone: 9789011111,
+  Email: 'garrett@gmail.com',
+  item_quantity: 1,
+  purchase_amt: 225
+}
+{
+  FirstName: 'Garrett',
+  LastName: 'Vargas',
+  Phone: 9789011111,
+  Email: 'garrett@gmail.com',
+  item_quantity: 2,
+  purchase_amt: 2000
+}
+{
+  FirstName: 'Gordon',
+  LastName: 'Hee',
+  Phone: 8855577234,
+  Email: 'gordon@gmail.com',
+  item_quantity: 3,
+  purchase_amt: 810
+}
+{
+  FirstName: 'Gordon',
+  LastName: 'Hee',
+  Phone: 8855577234,
+  Email: 'gordon@gmail.com',
+  item_quantity: 2,
+  purchase_amt: 434
+}
+{
+  FirstName: 'Karan',
+  LastName: 'Khanna',
+  Phone: 7788966445,
+  Email: 'karan@gmail.com'
+}
+{
+  FirstName: 'Kim',
+  LastName: 'Ralls',
+  Phone: 8770033221,
+  Email: 'kim@gmail.com'
+}
+{
+  FirstName: 'Krik',
+  LastName: 'Koenigs',
+  Phone: 9774455443,
+  Email: 'krik@gmail.com',
+  item_quantity: 2,
+  purchase_amt: 150
+}
+{
+  FirstName: 'Krik',
+  LastName: 'Koenigs',
+  Phone: 9774455443,
+  Email: 'krik@gmail.com',
+  item_quantity: 2,
+  purchase_amt: 700
+}
+{
+  FirstName: 'Reuben',
+  LastName: 'Dsa',
+  Phone: 9988844555,
+  Email: 'reuben@gmail.com',
+  item_quantity: 2,
+  purchase_amt: 2000
+}
+{
+  FirstName: 'Sariya',
+  LastName: 'Hampa',
+  Phone: 9667785544,
+  Email: 'sariya@gmail.com',
+  item_quantity: 2,
+  purchase_amt: 80
+}
+
+10. db.students3.insertMany( [
+{ "_id" : 1, "tests" : [ 95, 92, 90 ], "average" : 92, "grade" : "A",
+"lastUpdate" : ISODate("2020-01-23T05:18:40.013Z") },
+{ "_id" : 2, "tests" : [ 70, 75, 82 ], "lastUpdate" :
+ISODate("2019-01-01T00:00:00Z") } ])
+Find the Average and grade of _id:2 and update the ISODate to current date and
+time.
+
+db.students3.insertMany([
+  { _id: 1, tests: [ 95, 92, 90 ], average: 92, grade: "A",
+    lastUpdate: ISODate("2020-01-23T05:18:40.013Z") },
+  { _id: 2, tests: [ 70, 75, 82 ],
+    lastUpdate: ISODate("2019-01-01T00:00:00Z") }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2
+  }
+}
+db.students3.updateOne(
+  { _id: 2 },
+  [
+    { $set: { average: { $avg: "$tests" }, lastUpdate: "$$NOW" } },
+    { $set: { grade: { $switch: { branches: [
+        { case: { $gte: [ "$average", 90 ] }, then: "A" },
+        { case: { $gte: [ "$average", 80 ] }, then: "B" },
+        { case: { $gte: [ "$average", 70 ] }, then: "C" },
+        { case: { $gte: [ "$average", 60 ] }, then: "D" }
+      ], default: "F" } } } }
+  ]
+)
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+db.students3.find({ _id: 2 })
+{
+  _id: 2,
+  tests: [
+    70,
+    75,
+    82
+  ],
+  lastUpdate: 2026-05-26T07:34:04.871Z,
+  average: 75.66666666666667,
+  grade: 'C'
+}
+
+
+
+
+
