@@ -1,0 +1,522 @@
+use LibraryDB
+switched to db LibraryDB
+1. Insert all documents to Books and Purchase collections
+db.Books.insertMany([
+{
+id:1,
+Title:"Data Structure",
+Author:"Lipschute",
+Subject:"DS",
+Publisher:"McGraw",
+Edition:"First Edition",
+Quantity:4,
+Price:217
+},
+{
+id:2,
+Title:"DOS Guide",
+Author:"NORTRON",
+Subject:"OS",
+Publisher:"PHI",
+Edition:"First Edition",
+Quantity:3,
+Price:175
+},
+{
+id:3,
+Title:"Turbo C++",
+Author:"Robert Lafore",
+Subject:"Prog",
+Publisher:"Galgotia",
+Edition:"Second Edition",
+Quantity:5,
+Price:270
+},
+{
+id:4,
+Title:"Dbase Dummies",
+Author:"Palmer",
+Subject:"DBMS",
+Publisher:"PustakM",
+Edition:"First Edition",
+Quantity:7,
+Price:130
+},
+{
+id:5,
+Title:"Mastering Windows",
+Author:"Cowart",
+Subject:"OS",
+Publisher:"BPB",
+Edition:"Third Edition",
+Quantity:1,
+Price:225
+},
+{
+id:6,
+Title:"Computer Studies",
+Author:"French",
+Subject:"FND",
+Publisher:"Galgotia",
+Edition:"Second Edition",
+Quantity:2,
+Price:75
+},
+{
+id:7,
+Title:"COBOL",
+Author:"Stern",
+Subject:"Prog",
+Publisher:"John W",
+Edition:"Third Edition",
+Quantity:4,
+Price:1000
+},
+{
+id:8,
+Title:"Guide Network",
+Author:"Freed",
+Subject:"NET",
+Publisher:"Zpress",
+Edition:"Second Edition",
+Quantity:3,
+Price:200
+},
+{
+id:9,
+Title:"Basic for Beginners",
+Author:"Norton",
+Subject:"Prog",
+Publisher:"BPB",
+Edition:"First Edition",
+Quantity:3,
+Price:40
+},
+{
+id:10,
+Title:"Advanced Pascal",
+Author:"Schildt",
+Subject:"Prog",
+Publisher:"MCGraw",
+Edition:"Third Edition",
+Quantity:4,
+Price:350
+}
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a1541785432b1dc93e72e5e'),
+    '1': ObjectId('6a1541785432b1dc93e72e5f'),
+    '2': ObjectId('6a1541785432b1dc93e72e60'),
+    '3': ObjectId('6a1541785432b1dc93e72e61'),
+    '4': ObjectId('6a1541785432b1dc93e72e62'),
+    '5': ObjectId('6a1541785432b1dc93e72e63'),
+    '6': ObjectId('6a1541785432b1dc93e72e64'),
+    '7': ObjectId('6a1541785432b1dc93e72e65'),
+    '8': ObjectId('6a1541785432b1dc93e72e66'),
+    '9': ObjectId('6a1541785432b1dc93e72e67')
+  }
+}
+db.Purchase.insertMany([
+{
+order_no:70001,
+Book_id:3,
+item_quantity:3,
+purchase_amt:810,
+date:"2022-11-05",
+customer_id:3005,
+salesman_id:5002
+},
+{
+order_no:70009,
+Book_id:4,
+item_quantity:4,
+purchase_amt:520,
+date:"2022-11-10",
+customer_id:3001,
+salesman_id:5005
+},
+{
+order_no:70002,
+Book_id:5,
+item_quantity:1,
+purchase_amt:225,
+date:"2022-11-09",
+customer_id:3002,
+salesman_id:5001
+},
+{
+order_no:70004,
+Book_id:6,
+item_quantity:2,
+purchase_amt:150,
+date:"2022-11-08",
+customer_id:3009,
+salesman_id:5003
+},
+{
+order_no:70007,
+Book_id:1,
+item_quantity:2,
+purchase_amt:434,
+date:"2022-11-08",
+customer_id:3005,
+salesman_id:5002
+},
+{
+order_no:70008,
+Book_id:8,
+item_quantity:1,
+purchase_amt:200,
+date:"2022-11-01",
+customer_id:3007,
+salesman_id:5001
+},
+{
+order_no:70010,
+Book_id:7,
+item_quantity:2,
+purchase_amt:2000,
+date:"2022-11-03",
+customer_id:3004,
+salesman_id:5006
+},
+{
+order_no:70003,
+Book_id:10,
+item_quantity:2,
+purchase_amt:700,
+date:"2022-11-04",
+customer_id:3009,
+salesman_id:5003
+},
+{
+order_no:70012,
+Book_id:9,
+item_quantity:2,
+purchase_amt:80,
+date:"2022-11-02",
+customer_id:3008,
+salesman_id:5002
+},
+{
+order_no:70011,
+Book_id:2,
+item_quantity:2,
+purchase_amt:350,
+date:"2022-11-07",
+customer_id:3003,
+salesman_id:5007
+},
+{
+order_no:70013,
+Book_id:7,
+item_quantity:2,
+purchase_amt:2000,
+date:"2022-11-06",
+customer_id:3002,
+salesman_id:5001
+}
+])
+
+2. create a text search for Title
+db.Books.createIndex({Title:"text"})
+Title_text
+db.Books.find({ $text: { $search: "Data Structure" } })
+{
+  _id: ObjectId('6a1541785432b1dc93e72e5e'),
+  id: 1,
+  Title: 'Data Structure',
+  Author: 'Lipschute',
+  Subject: 'DS',
+  Publisher: 'McGraw',
+  Edition: 'First Edition',
+  Quantity: 4,
+  Price: 217
+}
+
+3. select Title, sum(price) from Books order by Title ASC
+  db.Books.aggregate([
+  { $group: { _id: "$Title", totalPrice: { $sum: "$Price" } } },
+  { $sort: { _id: 1 } }
+])
+{
+  _id: 'Advanced Pascal',
+  totalPrice: 350
+}
+{
+  _id: 'Basic for Beginners',
+  totalPrice: 40
+}
+{
+  _id: 'COBOL',
+  totalPrice: 1000
+}
+{
+  _id: 'Computer Studies',
+  totalPrice: 75
+}
+{
+  _id: 'DOS Guide',
+  totalPrice: 175
+}
+{
+  _id: 'Data Structure',
+  totalPrice: 217
+}
+{
+  _id: 'Dbase Dummies',
+  totalPrice: 130
+}
+{
+  _id: 'Guide Network',
+  totalPrice: 200
+}
+{
+  _id: 'Mastering Windows',
+  totalPrice: 225
+}
+{
+  _id: 'Turbo C++',
+  totalPrice: 270
+}
+
+4. select Book_id,item_quantity from Purchase Group by Book_id
+Having count(item_quantity)>1
+  db.Purchase.aggregate([
+  { $group: {
+      _id: "$Book_id",
+      item_quantity: { $sum: "$item_quantity" },
+      count: { $sum: 1 }
+  } },
+  { $match: { count: { $gt: 1 } } }
+])
+{
+  _id: 7,
+  item_quantity: 4,
+  count: 2
+}
+
+5. Query to execute the sum of the price group by Edition
+db.Books.aggregate([
+  { $group: { _id: "$Edition", totalPrice: { $sum: "$Price" } } }
+])
+{
+  _id: 'First Edition',
+  totalPrice: 562
+}
+{
+  _id: 'Third Edition',
+  totalPrice: 1575
+}
+{
+  _id: 'Second Edition',
+  totalPrice: 545
+}
+
+6. select Title as _id, sum(quantity*price) as totalAmount from Books
+order by totalAmount in ASC
+db.Books.aggregate([
+  { $group: {
+      _id: "$Title",
+      totalAmount: { $sum: { $multiply: [ "$Quantity", "$Price" ] } }
+  } },
+  { $sort: { totalAmount: 1 } }
+])
+{
+  _id: 'Basic for Beginners',
+  totalAmount: 120
+}
+{
+  _id: 'Computer Studies',
+  totalAmount: 150
+}
+{
+  _id: 'Mastering Windows',
+  totalAmount: 225
+}
+{
+  _id: 'DOS Guide',
+  totalAmount: 525
+}
+{
+  _id: 'Guide Network',
+  totalAmount: 600
+}
+{
+  _id: 'Data Structure',
+  totalAmount: 868
+}
+{
+  _id: 'Dbase Dummies',
+  totalAmount: 910
+}
+{
+  _id: 'Turbo C++',
+  totalAmount: 1350
+}
+{
+  _id: 'Advanced Pascal',
+  totalAmount: 1400
+}
+{
+  _id: 'COBOL',
+  totalAmount: 4000
+}
+
+7. Query to print only the average of puchase_amt
+db.Purchase.aggregate([
+  { $group: { _id: null, avgPurchase: { $avg: "$purchase_amt" } } },
+  { $project: { _id: 0, avgPurchase: 1 } }
+])
+{
+  avgPurchase: 679
+}
+
+8. select Title as _id, sum(quantity*price) as totalAmount from Books
+where totalAmount>=1000.00 order by totalAmount in desc
+db.Books.aggregate([
+  { $group: {
+      _id: "$Title",
+      totalAmount: { $sum: { $multiply: [ "$Quantity", "$Price" ] } }
+  } },
+  { $match: { totalAmount: { $gte: 1000.00 } } },
+  { $sort: { totalAmount: -1 } }
+])
+{
+  _id: 'COBOL',
+  totalAmount: 4000
+}
+{
+  _id: 'Advanced Pascal',
+  totalAmount: 1400
+}
+{
+  _id: 'Turbo C++',
+  totalAmount: 1350
+}
+
+9. update the Book name COBOL as COBOL_new_Edition using
+Variable in let
+db.Books.updateOne(
+  { $expr: { $eq: [ "$Title", "$$oldName" ] } },
+  [ { $set: { Title: "$$newName" } } ],
+  { let: { oldName: "COBOL", newName: "COBOL_new_Edition" } }
+)
+
+db.Books.find({ Title: "COBOL_new_Edition" })
+{
+  _id: ObjectId('6a1541785432b1dc93e72e64'),
+  id: 7,
+  Title: 'COBOL_new_Edition',
+  Author: 'Stern',
+  Subject: 'Prog',
+  Publisher: 'John W',
+  Edition: 'Third Edition',
+  Quantity: 4,
+  Price: 1000
+}
+
+10.Query to set unique document in Books Collection
+db.Books.createIndex({ id: 1 }, { unique: true })
+id_1
+
+11.Autoincrement in MongoDB to store sequence of Unique id for
+Books collection
+db.counters.insertOne({
+_id:"bookid",
+sequence_value:10
+})
+{
+  acknowledged: true,
+  insertedId: 'bookid'
+}
+function getNextSequenceValue(sequenceName){
+var sequenceDoc=db.counters.findOneAndUpdate(
+{_id:sequenceName},
+{$inc:{sequence_value:1}},
+{returnNewDocument:true}
+);
+return sequenceDoc.sequence_value;
+}
+[Function: getNextSequenceValue]
+db.Books.insertOne({
+id:getNextSequenceValue("bookid"),
+Title:"Java Programming",
+Author:"James",
+Subject:"Prog",
+Publisher:"Oracle",
+Edition:"First Edition",
+Quantity:5,
+Price:500
+})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6a1547475432b1dc93e72e83')
+}
+
+12.select documents where purchase_amt%4=0
+  db.Purchase.find({
+  $expr: { $eq: [ { $mod: [ "$purchase_amt", 4 ] }, 0 ] }
+})
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e69'),
+  order_no: 70009,
+  Book_id: 4,
+  item_quantity: 4,
+  purchase_amt: 520,
+  date: '2022-11-10',
+  customer_id: 3001,
+  salesman_id: 5005
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6d'),
+  order_no: 70008,
+  Book_id: 8,
+  item_quantity: 1,
+  purchase_amt: 200,
+  date: '2022-11-01',
+  customer_id: 3007,
+  salesman_id: 5001
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6e'),
+  order_no: 70010,
+  Book_id: 7,
+  item_quantity: 2,
+  purchase_amt: 2000,
+  date: '2022-11-03',
+  customer_id: 3004,
+  salesman_id: 5006
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e6f'),
+  order_no: 70003,
+  Book_id: 10,
+  item_quantity: 2,
+  purchase_amt: 700,
+  date: '2022-11-04',
+  customer_id: 3009,
+  salesman_id: 5003
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e70'),
+  order_no: 70012,
+  Book_id: 9,
+  item_quantity: 2,
+  purchase_amt: 80,
+  date: '2022-11-02',
+  customer_id: 3008,
+  salesman_id: 5002
+}
+{
+  _id: ObjectId('6a15418d5432b1dc93e72e72'),
+  order_no: 70013,
+  Book_id: 7,
+  item_quantity: 2,
+  purchase_amt: 2000,
+  date: '2022-11-06',
+  customer_id: 3002,
+  salesman_id: 5001
+}
