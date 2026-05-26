@@ -1,0 +1,600 @@
+CASE STUDY 1 – Banking Loan Processing System
+use BankingDB
+switched to db BankingDB
+db.customers.insertMany([
+{ customerId:"C1", name:"Arun", city:"Chennai", loanIds:["L1","L2"] },
+{ customerId:"C2", name:"Meena", city:"Delhi", loanIds:["L3"] },
+{ customerId:"C3", name:"Rahul", city:"Mumbai", loanIds:["L4"] },
+{ customerId:"C4", name:"Kiran", city:"Pune", loanIds:["L5"] },
+{ customerId:"C5", name:"Priya", city:"Chennai", loanIds:["L6"] }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a15c4411f01a4a271c43ade'),
+    '1': ObjectId('6a15c4411f01a4a271c43adf'),
+    '2': ObjectId('6a15c4411f01a4a271c43ae0'),
+    '3': ObjectId('6a15c4411f01a4a271c43ae1'),
+    '4': ObjectId('6a15c4411f01a4a271c43ae2')
+  }
+}
+db.loans.insertMany([
+{ loanId:"L1", customerId:"C1", amount:200000, status:"Approved" },
+{ loanId:"L2", customerId:"C1", amount:150000, status:"Pending" },
+{ loanId:"L3", customerId:"C2", amount:300000, status:"Approved" },
+{ loanId:"L4", customerId:"C3", amount:180000, status:"Approved" },
+{ loanId:"L5", customerId:"C4", amount:100000, status:"Rejected" }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a15c44e1f01a4a271c43ae3'),
+    '1': ObjectId('6a15c44e1f01a4a271c43ae4'),
+    '2': ObjectId('6a15c44e1f01a4a271c43ae5'),
+    '3': ObjectId('6a15c44e1f01a4a271c43ae6'),
+    '4': ObjectId('6a15c44e1f01a4a271c43ae7')
+  }
+}
+db.loans.find({ status:"Approved" })
+{
+  _id: ObjectId('6a15c44e1f01a4a271c43ae3'),
+  loanId: 'L1',
+  customerId: 'C1',
+  amount: 200000,
+  status: 'Approved'
+}
+{
+  _id: ObjectId('6a15c44e1f01a4a271c43ae5'),
+  loanId: 'L3',
+  customerId: 'C2',
+  amount: 300000,
+  status: 'Approved'
+}
+{
+  _id: ObjectId('6a15c44e1f01a4a271c43ae6'),
+  loanId: 'L4',
+  customerId: 'C3',
+  amount: 180000,
+  status: 'Approved'
+}
+db.loans.updateOne(
+{ loanId:"L2" },
+{ $set:{ status:"Approved" } }
+)
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+db.customers.aggregate([
+{
+$lookup:{
+from:"loans",
+localField:"customerId",
+foreignField:"customerId",
+as:"loanDetails"
+}
+}
+])
+{
+  _id: ObjectId('6a15c4411f01a4a271c43ade'),
+  customerId: 'C1',
+  name: 'Arun',
+  city: 'Chennai',
+  loanIds: [
+    'L1',
+    'L2'
+  ],
+  loanDetails: [
+    {
+      _id: ObjectId('6a15c44e1f01a4a271c43ae3'),
+      loanId: 'L1',
+      customerId: 'C1',
+      amount: 200000,
+      status: 'Approved'
+    },
+    {
+      _id: ObjectId('6a15c44e1f01a4a271c43ae4'),
+      loanId: 'L2',
+      customerId: 'C1',
+      amount: 150000,
+      status: 'Approved'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4411f01a4a271c43adf'),
+  customerId: 'C2',
+  name: 'Meena',
+  city: 'Delhi',
+  loanIds: [
+    'L3'
+  ],
+  loanDetails: [
+    {
+      _id: ObjectId('6a15c44e1f01a4a271c43ae5'),
+      loanId: 'L3',
+      customerId: 'C2',
+      amount: 300000,
+      status: 'Approved'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4411f01a4a271c43ae0'),
+  customerId: 'C3',
+  name: 'Rahul',
+  city: 'Mumbai',
+  loanIds: [
+    'L4'
+  ],
+  loanDetails: [
+    {
+      _id: ObjectId('6a15c44e1f01a4a271c43ae6'),
+      loanId: 'L4',
+      customerId: 'C3',
+      amount: 180000,
+      status: 'Approved'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4411f01a4a271c43ae1'),
+  customerId: 'C4',
+  name: 'Kiran',
+  city: 'Pune',
+  loanIds: [
+    'L5'
+  ],
+  loanDetails: [
+    {
+      _id: ObjectId('6a15c44e1f01a4a271c43ae7'),
+      loanId: 'L5',
+      customerId: 'C4',
+      amount: 100000,
+      status: 'Rejected'
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4411f01a4a271c43ae2'),
+  customerId: 'C5',
+  name: 'Priya',
+  city: 'Chennai',
+  loanIds: [
+    'L6'
+  ],
+  loanDetails: []
+}
+db.loans.aggregate([
+{
+$group:{
+_id:null,
+totalLoan:{ $sum:"$amount" }
+}
+}
+])
+{
+  _id: null,
+  totalLoan: 930000
+}
+
+CASE STUDY 2 – Online Course Enrollment System
+
+use CourseDB
+switched to db CourseDB
+db.students.insertMany([
+{ studentId:"S1", name:"Arun", city:"Chennai", courseIds:["C1","C2"] },
+{ studentId:"S2", name:"Meena", city:"Delhi", courseIds:["C2"] },
+{ studentId:"S3", name:"Rahul", city:"Mumbai", courseIds:["C3"] },
+{ studentId:"S4", name:"Kiran", city:"Pune", courseIds:["C1"] },
+{ studentId:"S5", name:"Priya", city:"Chennai", courseIds:["C3"] }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a15c4e57bc3e4ad010942b7'),
+    '1': ObjectId('6a15c4e57bc3e4ad010942b8'),
+    '2': ObjectId('6a15c4e57bc3e4ad010942b9'),
+    '3': ObjectId('6a15c4e57bc3e4ad010942ba'),
+    '4': ObjectId('6a15c4e57bc3e4ad010942bb')
+  }
+}
+db.courses.insertMany([
+{ courseId:"C1", courseName:"MongoDB", fee:5000 },
+{ courseId:"C2", courseName:"NodeJS", fee:4000 },
+{ courseId:"C3", courseName:"Python", fee:4500 },
+{ courseId:"C4", courseName:"React", fee:5500 },
+{ courseId:"C5", courseName:"Java", fee:6000 }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a15c4ea7bc3e4ad010942bc'),
+    '1': ObjectId('6a15c4ea7bc3e4ad010942bd'),
+    '2': ObjectId('6a15c4ea7bc3e4ad010942be'),
+    '3': ObjectId('6a15c4ea7bc3e4ad010942bf'),
+    '4': ObjectId('6a15c4ea7bc3e4ad010942c0')
+  }
+}
+ 
+db.students.find({ city:"Chennai" })
+{
+  _id: ObjectId('6a15c4e57bc3e4ad010942b7'),
+  studentId: 'S1',
+  name: 'Arun',
+  city: 'Chennai',
+  courseIds: [
+    'C1',
+    'C2'
+  ]
+}
+{
+  _id: ObjectId('6a15c4e57bc3e4ad010942bb'),
+  studentId: 'S5',
+  name: 'Priya',
+  city: 'Chennai',
+  courseIds: [
+    'C3'
+  ]
+}
+db.courses.find({ fee:{ $gt:4500 } })
+{
+  _id: ObjectId('6a15c4ea7bc3e4ad010942bc'),
+  courseId: 'C1',
+  courseName: 'MongoDB',
+  fee: 5000
+}
+{
+  _id: ObjectId('6a15c4ea7bc3e4ad010942bf'),
+  courseId: 'C4',
+  courseName: 'React',
+  fee: 5500
+}
+{
+  _id: ObjectId('6a15c4ea7bc3e4ad010942c0'),
+  courseId: 'C5',
+  courseName: 'Java',
+  fee: 6000
+}
+db.students.aggregate([
+{
+$lookup:{
+from:"courses",
+localField:"courseIds",
+foreignField:"courseId",
+as:"courseDetails"
+}
+}
+])
+{
+  _id: ObjectId('6a15c4e57bc3e4ad010942b7'),
+  studentId: 'S1',
+  name: 'Arun',
+  city: 'Chennai',
+  courseIds: [
+    'C1',
+    'C2'
+  ],
+  courseDetails: [
+    {
+      _id: ObjectId('6a15c4ea7bc3e4ad010942bc'),
+      courseId: 'C1',
+      courseName: 'MongoDB',
+      fee: 5000
+    },
+    {
+      _id: ObjectId('6a15c4ea7bc3e4ad010942bd'),
+      courseId: 'C2',
+      courseName: 'NodeJS',
+      fee: 4000
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4e57bc3e4ad010942b8'),
+  studentId: 'S2',
+  name: 'Meena',
+  city: 'Delhi',
+  courseIds: [
+    'C2'
+  ],
+  courseDetails: [
+    {
+      _id: ObjectId('6a15c4ea7bc3e4ad010942bd'),
+      courseId: 'C2',
+      courseName: 'NodeJS',
+      fee: 4000
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4e57bc3e4ad010942b9'),
+  studentId: 'S3',
+  name: 'Rahul',
+  city: 'Mumbai',
+  courseIds: [
+    'C3'
+  ],
+  courseDetails: [
+    {
+      _id: ObjectId('6a15c4ea7bc3e4ad010942be'),
+      courseId: 'C3',
+      courseName: 'Python',
+      fee: 4500
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4e57bc3e4ad010942ba'),
+  studentId: 'S4',
+  name: 'Kiran',
+  city: 'Pune',
+  courseIds: [
+    'C1'
+  ],
+  courseDetails: [
+    {
+      _id: ObjectId('6a15c4ea7bc3e4ad010942bc'),
+      courseId: 'C1',
+      courseName: 'MongoDB',
+      fee: 5000
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c4e57bc3e4ad010942bb'),
+  studentId: 'S5',
+  name: 'Priya',
+  city: 'Chennai',
+  courseIds: [
+    'C3'
+  ],
+  courseDetails: [
+    {
+      _id: ObjectId('6a15c4ea7bc3e4ad010942be'),
+      courseId: 'C3',
+      courseName: 'Python',
+      fee: 4500
+    }
+  ]
+}
+db.students.aggregate([
+{
+$group:{
+_id:"$city",
+totalStudents:{ $sum:1 }
+}
+}
+])
+{
+  _id: 'Chennai',
+  totalStudents: 2
+}
+{
+  _id: 'Mumbai',
+  totalStudents: 1
+}
+{
+  _id: 'Pune',
+  totalStudents: 1
+}
+{
+  _id: 'Delhi',
+  totalStudents: 1
+}
+
+
+CASE STUDY 3 – Airline Reservation System
+
+use AirlineDB
+switched to db AirlineDB
+db.bookings.insertMany([
+{ bookingId:"B1", passenger:"Arun", flightId:"F1", seats:["12A"], status:"Confirmed" },
+{ bookingId:"B2", passenger:"Meena", flightId:"F2", seats:["10B"], status:"Pending" },
+{ bookingId:"B3", passenger:"Rahul", flightId:"F1", seats:["14C"], status:"Confirmed" },
+{ bookingId:"B4", passenger:"Kiran", flightId:"F3", seats:["8A"], status:"Cancelled" },
+{ bookingId:"B5", passenger:"Priya", flightId:"F2", seats:["11D"], status:"Confirmed" }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a15c57e557114590fbe3b7f'),
+    '1': ObjectId('6a15c57e557114590fbe3b80'),
+    '2': ObjectId('6a15c57e557114590fbe3b81'),
+    '3': ObjectId('6a15c57e557114590fbe3b82'),
+    '4': ObjectId('6a15c57e557114590fbe3b83')
+  }
+}
+db.flights.insertMany([
+{ flightId:"F1", route:"Chennai-Mumbai", price:6000 },
+{ flightId:"F2", route:"Delhi-Goa", price:7000 },
+{ flightId:"F3", route:"Pune-Jaipur", price:5000 },
+{ flightId:"F4", route:"Chennai-Delhi", price:6500 },
+{ flightId:"F5", route:"Mumbai-Goa", price:7200 }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a15c581557114590fbe3b84'),
+    '1': ObjectId('6a15c581557114590fbe3b85'),
+    '2': ObjectId('6a15c581557114590fbe3b86'),
+    '3': ObjectId('6a15c581557114590fbe3b87'),
+    '4': ObjectId('6a15c581557114590fbe3b88')
+  }
+}
+db.bookings.find({ status:"Confirmed" })
+{
+  _id: ObjectId('6a15c57e557114590fbe3b7f'),
+  bookingId: 'B1',
+  passenger: 'Arun',
+  flightId: 'F1',
+  seats: [
+    '12A'
+  ],
+  status: 'Confirmed'
+}
+{
+  _id: ObjectId('6a15c57e557114590fbe3b81'),
+  bookingId: 'B3',
+  passenger: 'Rahul',
+  flightId: 'F1',
+  seats: [
+    '14C'
+  ],
+  status: 'Confirmed'
+}
+{
+  _id: ObjectId('6a15c57e557114590fbe3b83'),
+  bookingId: 'B5',
+  passenger: 'Priya',
+  flightId: 'F2',
+  seats: [
+    '11D'
+  ],
+  status: 'Confirmed'
+}
+db.bookings.updateOne(
+{ bookingId:"B2" },
+{ $set:{ status:"Confirmed" } }
+)
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+db.bookings.aggregate([
+{
+$lookup:{
+from:"flights",
+localField:"flightId",
+foreignField:"flightId",
+as:"flightDetails"
+}
+}
+])
+{
+  _id: ObjectId('6a15c57e557114590fbe3b7f'),
+  bookingId: 'B1',
+  passenger: 'Arun',
+  flightId: 'F1',
+  seats: [
+    '12A'
+  ],
+  status: 'Confirmed',
+  flightDetails: [
+    {
+      _id: ObjectId('6a15c581557114590fbe3b84'),
+      flightId: 'F1',
+      route: 'Chennai-Mumbai',
+      price: 6000
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c57e557114590fbe3b80'),
+  bookingId: 'B2',
+  passenger: 'Meena',
+  flightId: 'F2',
+  seats: [
+    '10B'
+  ],
+  status: 'Confirmed',
+  flightDetails: [
+    {
+      _id: ObjectId('6a15c581557114590fbe3b85'),
+      flightId: 'F2',
+      route: 'Delhi-Goa',
+      price: 7000
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c57e557114590fbe3b81'),
+  bookingId: 'B3',
+  passenger: 'Rahul',
+  flightId: 'F1',
+  seats: [
+    '14C'
+  ],
+  status: 'Confirmed',
+  flightDetails: [
+    {
+      _id: ObjectId('6a15c581557114590fbe3b84'),
+      flightId: 'F1',
+      route: 'Chennai-Mumbai',
+      price: 6000
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c57e557114590fbe3b82'),
+  bookingId: 'B4',
+  passenger: 'Kiran',
+  flightId: 'F3',
+  seats: [
+    '8A'
+  ],
+  status: 'Cancelled',
+  flightDetails: [
+    {
+      _id: ObjectId('6a15c581557114590fbe3b86'),
+      flightId: 'F3',
+      route: 'Pune-Jaipur',
+      price: 5000
+    }
+  ]
+}
+{
+  _id: ObjectId('6a15c57e557114590fbe3b83'),
+  bookingId: 'B5',
+  passenger: 'Priya',
+  flightId: 'F2',
+  seats: [
+    '11D'
+  ],
+  status: 'Confirmed',
+  flightDetails: [
+    {
+      _id: ObjectId('6a15c581557114590fbe3b85'),
+      flightId: 'F2',
+      route: 'Delhi-Goa',
+      price: 7000
+    }
+  ]
+}
+db.bookings.aggregate([
+{
+$group:{
+_id:"$flightId",
+totalBookings:{ $sum:1 }
+}
+}
+])
+{
+  _id: 'F3',
+  totalBookings: 1
+}
+{
+  _id: 'F2',
+  totalBookings: 2
+}
+{
+  _id: 'F1',
+  totalBookings: 2
+}
+
+
+
+
+
+
+
+
+
+
+
